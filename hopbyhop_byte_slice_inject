@@ -1,0 +1,22 @@
+def hophop_slicer():
+   sip = '2001:db8:3c4d:15::2' #source IP
+   dip = '2001:db8:3c4d:15::4' #destination IP
+   
+   eicar ='X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+   eicarb = bytes(eicar, 'utf-8') #encodes the EICAR string as UTF8 bytes
+   
+   v6head = IPv6(src=sip, dst=dip, nh=0, plen=8*2)
+
+   N=4  #this is the number of bytes to slice
+   strt = 0 #this is the start position and will be incremented each loop by N bytes
+  
+   while strt < len(eicarb):
+    eicarbslice = eicarb[strt:strt+N]
+    print(eicarbslice)
+    hophop = IPv6ExtHdrHopByHop(options=PadN(optdata=eicarbslice))\
+     /IPv6ExtHdrDestOpt(options=PadN(optdata='B'))\ #probably not necessary
+     /ICMPv6EchoRequest()
+    allthehops = v6head/hophop
+    allthehops.show()
+    send(allthehops)    
+    strt += N

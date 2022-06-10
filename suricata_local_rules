@@ -1,0 +1,16 @@
+##Working
+alert ipv6 any any -> any any (msg:"EICAR PAYLOAD DSTOPS. BYTE match with REGEX verification"; ipv6.hdr; content:"|45 49 43 41 52|"; offset:56; pcre:"/(X5O\!).*(EICAR).*(H\+H\*)/"; id:1000001;)
+
+##Working
+alert ipv6 any any -> any any (msg:"EICAR PAYLOAD DSTOPS. Content match on EICAR-STANDARD-ANTIVIRUS"; ipv6.hdr; content:"EICAR-STANDARD-ANTIVIRUS"; offset:55; sid:1000002;)
+
+
+###NOT WORKING
+##These could alert on two different fragment ids if the id option in Suricata is updated to support a 32-bit integer
+##The id numbers are the decimal conversions of the hex representation of the first and second 4 characters of the EICAR string.
+##|58 35 4f 21|
+##|50 25 40 41|
+
+#alert ipv6 any any -> any any (msg:"EICAR PAYLOAD IP fragment ID FIELD. Matched with FLOWBITS of multiple packets"; ipv6.hdr; id: 1479888673; flowbits:set, eicar; flowbits: noalert; sid:1000003;)
+
+#alert ipv6 any any -> any any (msg:"EICAR PAYLOAD IP fragment ID FIELD. Matched with FLOWBITS of multiple packets"; ipv6.hdr; id: 1344618561; flowbits:isset, eicar; sid:1000004;)

@@ -1,0 +1,32 @@
+def eicarb_id_slicer():
+   sip = '2001:db8:3c4d:15::2' #source IP
+   dip = '2001:db8:3c4d:15::4' #destination IP
+   
+   eicar = #EICAR string#
+   eicarb = bytes(eicar, 'utf-8') #encodes the EICAR string as UTF8 bytes
+
+   eicarsmall = 'EICAR'
+   eicarbsmall = bytes(eicarsmall, 'utf-8')
+   
+   v6head = IPv6(src=sip, dst=dip, nh=44, plen=8*2)
+   v6headeropt = IPv6ExtHdrDestOpt(options=PadN(optdata='B'))\
+     /ICMPv6EchoRequest()
+   fragthis = v6head/v6headeropt
+   frags = fragment6(fragthis, 60)
+
+   N=4  #this is the number of bytes to slice
+   strt = 0 #this is the start position and will be incremented each loop by N bytes
+  
+   while strt < len(eicarb):
+    for frag in frags:
+     frag.id = RawVal(eicarb[strt:strt+N])
+    print(eicarb[strt:strt+N])
+    send(frags)    
+    strt += N
+    
+    # this measures the length of input, in this case our EICARB variable to use as a number to detect when to stop the loop. While the strt is smaller than the length the loop continues. each loop the strt gets incremented by +N 
+#   while strt < len(eicarb): 
+ #    print(eicarb[strt:strt+N])
+  #   strt += N
+
+# for each fragment that was created by the fragment6() function we replace the ID field with a slice of the byte version of the EICAR string. We have to use the RawLoad feature as scapy's expected input for the ID field is an integer value.

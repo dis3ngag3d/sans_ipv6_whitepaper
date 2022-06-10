@@ -1,0 +1,25 @@
+def eicar_dst_ops_payload(): 
+ sip = '2001:db8:3c4d:15::2'
+ dip = '2001:db8:3c4d:15::4'
+
+ eicar = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+ ##Scapy needs the '\' escaped.
+ 
+#basic v6 header. nothing special
+ v6head = IPv6(src=sip, dst=dip, plen=8*2)
+
+#this is building the extension header options
+#we use the PadN feature to make sure the bytes are aligned properly. PadN is the easy button as it will add as much padding as needed.
+
+ v6headeropt = IPv6ExtHdrDestOpt(options=PadN(optdata=eicar))\
+  /ICMPv6EchoRequest()
+
+####This is one with leading and trailing ASCII characters
+#There are 100 A's then the EICAR string followed by 40 B's
+#v6headeropt = IPv6ExtHdrDestOpt(options=PadN(optdata='A'*100)\
+# /PadN(optdata=eicar)\
+# /PadN(optdata='B'*40))\
+# /ICMPv6EchoRequest()
+
+ sendme = v6head/v6headeropt
+ send(sendme)
